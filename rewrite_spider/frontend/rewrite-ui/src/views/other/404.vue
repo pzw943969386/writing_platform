@@ -3,9 +3,7 @@
 </script>
 
 <template>
-  <div class="container">
-    这是首页
-  </div>
+  <div>404</div>
 </template>
 
 <style scoped lang="less">

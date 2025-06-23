@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import Column, Integer, String, Text, select
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select, delete, update
 from models.aritcle_model import Article, Base
 
 
@@ -18,49 +18,40 @@ class ServiceSqlite:
         except Exception as e:
             pass
 
-    async def save_article_by_current_date(self, current_date, title, content, url):
+    async def get_all_article_data(self):
         async with self.async_session() as session:
-            article = Article(
-                current_date=current_date, title=title, content=content, url=url
+            result = await session.execute(select(Article))
+            return result.scalars().all()
+
+    async def get_article_by_id(self, id):
+        async with self.async_session() as session:
+            result = await session.execute(select(Article).where(Article.id == id))
+            return result.scalar_one_or_none()
+
+    async def update_article_content(self, article_id, content):
+        async with self.async_session() as session:
+            await session.execute(
+                update(Article).where(Article.id == article_id).values(content=content)
             )
+            await session.commit()
+
+    async def delete_table_by_id(self, id):
+        async with self.async_session() as session:
+            await session.execute(delete(Article).where(Article.id == id))
+            await session.commit()
+
+    async def delete_table_all_data(self):
+        async with self.async_session() as session:
+            await session.execute(delete(Article))
+            await session.commit()
+
+    async def add_article_data(self, **kwargs):
+        async with self.async_session() as session:
+            article = Article(**kwargs)
             session.add(article)
             await session.commit()
-
-    async def update_article_by_url(self, url, content):
-        async with self.async_session() as session:
-            stmt = select(Article).where(Article.url == url)
-            result = await session.execute(stmt)
-            article = result.scalar_one_or_none()
-            if article:
-                article.content = content
-                await session.commit()
-            await session.commit()
-
-    async def get_article_list(self, current_date):
-        async with self.async_session() as session:
-            stmt = select(Article).where(Article.current_date == current_date)
-            result = await session.execute(stmt)
-            articles = result.scalars().all()
-            return [
-                {
-                    "id": a.id,
-                    "current_date": a.current_date,
-                    "title": a.title,
-                    "content": a.content,
-                    "url": a.url,
-                }
-                for a in articles
-            ]
-
-    async def get_article_content_by_url(self, title_url):
-        async with self.async_session() as session:
-            stmt = select(Article).where(Article.url == title_url)
-            result = await session.execute(stmt)
-            article = result.scalar_one_or_none()
-            return article.content if article else None
-
-    async def close(self):
-        await self.engine.dispose()
+            await session.refresh(article)
 
 
-service_sqlite = ServiceSqlite(db_path="db/data.sqlite")
+service_sqlite = ServiceSqlite(db_path="db/data.db")
+service_sqlite.create_table()
