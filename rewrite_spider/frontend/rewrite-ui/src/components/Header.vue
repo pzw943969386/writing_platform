@@ -10,6 +10,10 @@ const goArticle = () => {
 const goHome = () => {
   router.push("/");
 };
+
+const goOther = () => {
+  router.push("/other");
+};
 </script>
 
 <template>
@@ -17,6 +21,7 @@ const goHome = () => {
     <div class="header">
       <div @click="goHome">首页</div>
       <div @click="goArticle">文章列表</div>
+      <div @click="goOther">其他</div>
     </div>
   </div>
 </template>

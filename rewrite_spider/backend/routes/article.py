@@ -6,7 +6,7 @@ from pydantic import BaseModel
 article_router = APIRouter()
 
 
-@article_router.get("/article/list")
+@article_router.get("/list")
 async def get_article_list():
     article_manage = ArticleManage()
     article_list = await article_manage.get_article_list()
@@ -17,7 +17,7 @@ async def get_article_list():
     }
 
 
-@article_router.post("/article/reload")
+@article_router.post("/reload")
 async def reload_article():
     article_manage = ArticleManage()
     article_list = await article_manage.reload_article()
@@ -33,7 +33,7 @@ class ArticleContentRequest(BaseModel):
     article_url: str
 
 
-@article_router.post("/article/content")
+@article_router.post("/content")
 async def get_article_content(request: ArticleContentRequest):
     article_id = request.article_id
     article_url = request.article_url
@@ -50,7 +50,7 @@ class DeleteArticleRequest(BaseModel):
     url: str
 
 
-@article_router.delete("/article/delete")
+@article_router.delete("/delete")
 async def delete_article_by_url(request: DeleteArticleRequest):
     article_manage = ArticleManage()
     await article_manage.delete_article_by_url(request.url)

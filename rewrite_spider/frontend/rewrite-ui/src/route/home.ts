@@ -10,6 +10,10 @@ const homeRoute = [{
     path: '/article/content',
     name: 'articleContent',
     component: () => import('../views/article/Content.vue')
+}, {
+    path: '/other',
+    name: 'other',
+    component: () => import('../views/other/Other.vue'),
 }
 ]
 

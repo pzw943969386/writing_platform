@@ -3,6 +3,8 @@ from routes.article import article_router
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from services.service_sqlite import service_sqlite
+from routes.other import other_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,9 +14,11 @@ async def lifespan(app: FastAPI):
     finally:
         await service_sqlite.close()
 
+
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(article_router)
+app.include_router(article_router, prefix="/article")
+app.include_router(other_router, prefix="/other")
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,7 +29,7 @@ app.add_middleware(
 )
 
 
-
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8888)
