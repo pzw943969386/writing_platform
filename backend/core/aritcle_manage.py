@@ -1,43 +1,30 @@
-import requests
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
 import aiohttp
+import chardet
 from loguru import logger
 from services.service_sqlite import service_sqlite
 import time
-import json
 from sqlalchemy import select
 from models.aritcle_model import Article
 
 
 class ArticleManage:
     def __init__(self):
-        self.url = "https://www.wforum.com/news/breaking/#google_vignette"
+        self.url = "https://www.wforum.com/news/breaking"
         self.article_list = []
 
     async def get_html_content(self, url):
-        ua = UserAgent()
-        headers = {
-            "User-Agent": ua.random,
-            "Accept-Language": "zh-CN,zh;q=0.9",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-        }
         try:
-            response = requests.get(url, headers=headers, timeout=10)
-            response.encoding = "gbk"
-            return response.text
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    content = await response.read()
+                    detected = chardet.detect(content)
+                    encoding = detected['encoding'] or 'utf-8'
+                    html = content.decode(encoding, errors='ignore')
+                    return html
         except Exception as e:
             print(f"请求失败: {e}")
             return None
-
-        # try:
-        #     async with aiohttp.ClientSession() as session:
-        #         async with session.get(self.url, headers=headers, timeout=30) as response:
-        #             return await response.text()
-        # except Exception as e:
-        #     print(f"请求失败: {e}")
-        #     return None
 
     async def get_article_list(self):
         current_date = int(time.strftime("%Y%m%d"))
@@ -143,3 +130,13 @@ class ArticleManage:
 
     async def delete_article_by_id(self, article_id):
         await service_sqlite.delete_table_by_id(article_id)
+
+    async def get_article_content_by_url(self, url):
+        html = await self.get_html_content(url)
+        soup = BeautifulSoup(html, "html.parser")
+        content = ""
+        cont_div = soup.find("div", id="cont")
+        if cont_div:
+            for p in cont_div.find_all("p"):
+                content += p.get_text(strip=True)
+        return content

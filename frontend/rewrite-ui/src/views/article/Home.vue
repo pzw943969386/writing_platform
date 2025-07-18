@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { getArticleList, getArticleContent, reloadArticle } from "@/api/article";
+import {
+  getBreakingArticleList,
+  getHotArticleList,
+  getArticleContent,
+  reloadArticle,
+} from "@/api/article";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { Refresh } from "@element-plus/icons-vue";
@@ -16,7 +21,14 @@ const loading = ref(false);
 
 const getArticleListData = async () => {
   loading.value = true;
-  const res = await getArticleList();
+  const res = await getBreakingArticleList();
+  articleList.value = res.data;
+  loading.value = false;
+};
+
+const getHotArticleListData = async () => {
+  loading.value = true;
+  const res = await getHotArticleList();
   articleList.value = res.data;
   loading.value = false;
 };
@@ -48,8 +60,19 @@ onMounted(() => {
 <template>
   <div class="container">
     <div class="main">
-      <el-button @click="getArticleRewriteData" :icon="Refresh" type="success"></el-button>
-      <div class="data" v-for="item in articleList" :key="item.url" target="_blank" v-loading="loading">
+      <el-button
+        @click="getArticleRewriteData"
+        :icon="Refresh"
+        type="success"
+      ></el-button>
+      <el-button @click="getHotArticleList" type="primary">热门</el-button>
+      <div
+        class="data"
+        v-for="item in articleList"
+        :key="item.url"
+        target="_blank"
+        v-loading="loading"
+      >
         <div
           class="title"
           :style="{ color: getRandomColor() }"
@@ -65,7 +88,6 @@ onMounted(() => {
 
 <style scoped lang="less">
 .container {
-  display: flex;
   width: 100%;
   height: 100%;
   .main {

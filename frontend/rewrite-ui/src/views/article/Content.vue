@@ -40,6 +40,7 @@ const copyContent = () => {
       </div>
       <div class="content">
         <div class="title">{{ title }}</div>
+        <div class="url">{{ url }}</div>
         <div class="content" v-loading="loading">{{ articleContent }}</div>
       </div>
     </div>

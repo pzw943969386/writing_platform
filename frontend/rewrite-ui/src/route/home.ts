@@ -11,9 +11,13 @@ const homeRoute = [{
     name: 'articleContent',
     component: () => import('../views/article/Content.vue')
 }, {
-    path: '/other',
-    name: 'other',
-    component: () => import('../views/other/Other.vue'),
+    path: '/splite',
+    name: 'splite',
+    component: () => import('../views/article/Splite.vue'),
+}, {
+    path: '/get_content',
+    name: 'getContent',
+    component: () => import('../views/article/GetContent.vue'),
 }
 ]
 

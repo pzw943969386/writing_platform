@@ -6,10 +6,15 @@ from pydantic import BaseModel
 article_router = APIRouter()
 
 
-@article_router.get("/list")
-async def get_article_list():
+@article_router.get("/list/{type}")
+async def get_article_list(type: str):
     article_manage = ArticleManage()
-    article_list = await article_manage.get_article_list()
+    if type == "breaking":
+        article_manage.url = "https://www.wforum.com/news/breaking"
+        article_list = await article_manage.get_article_list()
+    elif type == "hot":
+        article_manage.url = "https://bbs.wforum.com"
+        article_list = await article_manage.reload_article()
     return {
         "message": "success",
         "code": 200,
@@ -57,4 +62,19 @@ async def delete_article_by_url(request: DeleteArticleRequest):
     return {
         "message": "success",
         "code": 200,
+    }
+
+
+class ArticleContentByUrlRequest(BaseModel):
+    url: str
+
+
+@article_router.post("/content/url")
+async def get_article_content_by_url(request: ArticleContentByUrlRequest):
+    article_manage = ArticleManage()
+    content = await article_manage.get_article_content_by_url(request.url)
+    return {
+        "message": "success",
+        "code": 200,
+        "data": content,
     }
