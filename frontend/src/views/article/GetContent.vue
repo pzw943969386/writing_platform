@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { getArticleContentByUrl } from "@/api/article";
+import { ref } from 'vue'
+import { getArticleContentByUrl } from '@/api/article'
 
-const input = ref("");
+const input = ref('')
 
-const articleContent = ref("");
+const articleContent = ref('')
 
 const getArticleContent = async () => {
-  const res = await getArticleContentByUrl({ url: input.value });
-  articleContent.value = res.data;
-};
+  const res = await getArticleContentByUrl({ url: input.value })
+  articleContent.value = res.data
+}
 </script>
 
 <template>

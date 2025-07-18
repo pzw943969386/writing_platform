@@ -1,12 +1,17 @@
+import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select, delete, update
-from models.aritcle_model import Article, Base
+from backend.models.article_model import Article, Base
 
 
-class ServiceSqlite:
+class SqliteService:
     def __init__(self, db_path):
-        self.engine = create_async_engine(f"sqlite+aiosqlite:///{db_path}", echo=True)
+        db_dir = os.path.dirname(db_path)
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir)
+
+        self.engine = create_async_engine(f"sqlite+aiosqlite:///{db_path}")
         self.async_session = sessionmaker(
             self.engine, class_=AsyncSession, expire_on_commit=True
         )
@@ -53,5 +58,4 @@ class ServiceSqlite:
             await session.refresh(article)
 
 
-service_sqlite = ServiceSqlite(db_path="db/data.db")
-service_sqlite.create_table()
+sqlite_service = SqliteService(db_path="backend/db/data.db")
