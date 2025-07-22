@@ -4,9 +4,10 @@ from contextlib import asynccontextmanager
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.openapi.utils import get_openapi
 from loguru import logger
-from .utils.sqlite import sqlite_service
+from .datebase.sqlite import sqlite_service
 from .api.tools import tools_router
 from .api.article import article_router
+from .api.write import write_router
 
 
 def create_app():
@@ -31,6 +32,7 @@ def create_app():
 
     app.include_router(article_router, prefix="/article")
     app.include_router(tools_router, prefix="/tools")
+    app.include_router(write_router, prefix="/write")
 
     @app.get("/openapi.json", include_in_schema=False)
     async def custom_openapi():

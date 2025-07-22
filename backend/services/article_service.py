@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import aiohttp
 import chardet
 from loguru import logger
-from ..utils.sqlite import sqlite_service
+from ..datebase.sqlite import sqlite_service
 from ..models.article_model import Article
 import time
 

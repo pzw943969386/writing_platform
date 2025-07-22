@@ -18,6 +18,10 @@ const homeRoute = [{
     path: '/get_content',
     name: 'getContent',
     component: () => import('../views/article/GetContent.vue'),
+}, {
+    path: '/write',
+    name: 'write',
+    component: () => import('../views/article/Write.vue'),
 }
 ]
 

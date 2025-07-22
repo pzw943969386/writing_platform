@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
+const router = useRouter()
 
 const goArticle = () => {
-  router.push("/article");
-};
+  router.push('/article')
+}
 
 const goHome = () => {
-  router.push("/");
-};
+  router.push('/')
+}
 
 const goSplite = () => {
-  router.push("/splite");
-};
+  router.push('/splite')
+}
 
 const goGetContent = () => {
-  router.push("/get_content");
-};
+  router.push('/get_content')
+}
+
+const goWrite = () => {
+  router.push('/write')
+}
 </script>
 
 <template>
@@ -27,6 +31,7 @@ const goGetContent = () => {
       <div @click="goArticle">文章列表</div>
       <div @click="goSplite">断句</div>
       <div @click="goGetContent">获取内容</div>
+      <div @click="goWrite">写作</div>
     </div>
   </div>
 </template>
@@ -36,7 +41,6 @@ const goGetContent = () => {
   width: 100%;
   height: 100%;
   padding-top: 50px;
-
 }
 .header {
   width: 100%;
