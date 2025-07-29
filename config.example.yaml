@@ -1,0 +1,8 @@
+server:
+  ip: 0.0.0.0
+  port: 8888
+
+openai:
+  api_key: ""
+  base_url: https://api.openai.com/v1/chat/completions
+  model: gpt-4.1-2025-04-14

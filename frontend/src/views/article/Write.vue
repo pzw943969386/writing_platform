@@ -14,6 +14,8 @@ const selectedArticleType = ref('comment')
 const articleTypeOptions = ref([
   { value: 'comment', label: '评论文' },
   { value: 'reduce_ai', label: '降低ai率' },
+  { value: 'hot_comment', label: '热评' },
+  { value: 'figure', label: '人物稿' },
 ])
 
 const handleWriteArticle = async () => {
