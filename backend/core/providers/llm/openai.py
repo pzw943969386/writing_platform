@@ -7,9 +7,19 @@ class LLMProvider:
         self.api_key = config.get("api_key")
         self.base_url = config.get("base_url")
         self.model = config.get("model")
-        self.client = AsyncOpenAI(api_key=self.api_key)
+        self.client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
 
-    async def response(self, messages: list[dict]):
+    async def get_response(self, messages: list[dict]):
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model, messages=messages, stream=False
+            )
+            return response
+        except Exception as e:
+            logger.error(f"LLMProvider response error: {e}")
+            return None
+
+    async def stream_response(self, messages: list[dict]):
         try:
             response = await self.client.chat.completions.create(
                 model=self.model, messages=messages, stream=True

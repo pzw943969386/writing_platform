@@ -17,7 +17,7 @@ export const streamWriteArticle = async (
   onError: (error: any) => void,
 ) => {
   try {
-    const response = await fetch('http://localhost:8888/write/article_write', {
+    const response = await fetch('http://localhost:8100/write/article_write', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

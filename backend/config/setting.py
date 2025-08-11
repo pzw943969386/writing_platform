@@ -31,5 +31,12 @@ class Settings:
     def openai(self):
         return self._config.get("openai", {})
 
+    @property
+    def kimi(self):
+        return self._config.get("kimi", {})
+
+    @property
+    def glm(self):
+        return self._config.get("glm", {})
 
 settings = Settings()

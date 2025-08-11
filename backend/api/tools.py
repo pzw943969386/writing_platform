@@ -13,7 +13,7 @@ class SplitTextRequest(BaseModel):
 @tools_router.post("/split_text")
 async def split_text(request: SplitTextRequest):
     text = request.text
-    try:
+    try: 
         lines = re.split(r"。(?![：:＊*])", text)
 
         # 过滤空字符串并重新添加句号

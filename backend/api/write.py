@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from fastapi.responses import StreamingResponse
 from ..services.write_service import write_service
 
@@ -7,20 +7,18 @@ write_router = APIRouter()
 
 
 class ArticleWriteRequest(BaseModel):
-    article_type: str
+    model_config = ConfigDict(extra="allow")
+
     article_content: str
 
 
 @write_router.post("/article_write")
 async def article_write(request: ArticleWriteRequest):
-    article_type = request.article_type
     article_content = request.article_content
     try:
 
         async def generate_article():
-            async for chunk in write_service.write_article(
-                article_type, article_content
-            ):
+            async for chunk in write_service.write_article(article_content):
                 yield chunk
 
         return StreamingResponse(generate_article(), media_type="text/event-stream")

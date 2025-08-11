@@ -3,20 +3,12 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { streamWriteArticle } from '@/api/write'
 import { CopyDocument } from '@element-plus/icons-vue'
+import { splitText } from '@/api/tools'
 
 // --- Component State ---
 const userInput = ref('')
 const generatedContent = ref('')
 const isLoading = ref(false)
-
-// 新增：文章类型的状态和选项
-const selectedArticleType = ref('comment')
-const articleTypeOptions = ref([
-  { value: 'comment', label: '评论文' },
-  { value: 'reduce_ai', label: '降低ai率' },
-  { value: 'hot_comment', label: '热评' },
-  { value: 'figure', label: '人物稿' },
-])
 
 const handleWriteArticle = async () => {
   if (!userInput.value.trim()) {
@@ -28,7 +20,6 @@ const handleWriteArticle = async () => {
   generatedContent.value = ''
 
   const payload = {
-    article_type: selectedArticleType.value, // 使用下拉框选中的值
     article_content: userInput.value,
   }
 
@@ -61,52 +52,93 @@ const copyGeneratedContent = async () => {
     ElMessage.error('复制失败，请手动复制。')
   }
 }
+
+const handleSplitArticle = async () => {
+  try {
+    const res = await splitText({ text: generatedContent.value })
+    if (res.code === 200 && res.data) {
+      generatedContent.value = res.data
+    } else {
+      ElMessage.error(res.message || '分段失败')
+    }
+  } catch (error) {
+    ElMessage.error('分段失败')
+  }
+}
+
+const clearContent = () => {
+  generatedContent.value = ''
+}
 </script>
 
 <template>
   <div class="write-container">
+    <!-- 左侧输入区域 -->
     <div class="input-section">
-      <el-input
-        v-model="userInput"
-        type="textarea"
-        :rows="10"
-        placeholder="在这里输入您的主题、大纲或初始段落..."
-        class="input-textarea"
-        resize="vertical"
-      />
-      <div class="actions-bar">
-        <el-select v-model="selectedArticleType" placeholder="选择文章类型" class="type-select">
-          <el-option
-            v-for="item in articleTypeOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+      <div class="section-header">
+        <h3>输入文章</h3>
         <el-button
           type="primary"
           @click="handleWriteArticle"
           :loading="isLoading"
           class="generate-button"
         >
-          {{ isLoading ? '生成中...' : '生成文章' }}
+          {{ isLoading ? '分析重写中...' : '分析重写' }}
         </el-button>
       </div>
+      <el-input
+        v-model="userInput"
+        type="textarea"
+        :rows="25"
+        placeholder="在这里粘贴您想要分析和重写的文章内容..."
+        class="input-textarea"
+        resize="vertical"
+      />
     </div>
 
-    <div v-if="generatedContent || isLoading" class="output-section">
-      <div class="output-header">
-        <h3>生成内容:</h3>
-        <el-button
-          type="success"
-          :icon="CopyDocument"
-          @click="copyGeneratedContent"
-          circle
-          title="复制内容"
-        />
+    <!-- 右侧输出区域 -->
+    <div class="output-section">
+      <div class="section-header">
+        <h3>重写结果</h3>
+        <div class="output-actions">
+          <el-button
+            type="danger"
+            @click="clearContent"
+            size="small"
+            plain
+            v-if="generatedContent"
+          >
+            清空
+          </el-button>
+          <el-button
+            type="success"
+            :icon="CopyDocument"
+            @click="copyGeneratedContent"
+            size="small"
+            v-if="generatedContent"
+          >
+            复制
+          </el-button>
+          <el-button
+            type="primary"
+            @click="handleSplitArticle"
+            size="small"
+            v-if="generatedContent"
+          >
+            分段
+          </el-button>
+        </div>
       </div>
-      <div class="output-content">
-        <pre>{{ generatedContent }}</pre>
+      
+      <div class="output-content" :class="{ 'loading': isLoading }">
+        <div v-if="isLoading && !generatedContent" class="loading-placeholder">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <p>正在分析和重写文章，请稍候...</p>
+        </div>
+        <div v-else-if="!generatedContent && !isLoading" class="empty-placeholder">
+          <p>重写后的文章内容将在这里显示</p>
+        </div>
+        <pre v-else class="content-text">{{ generatedContent }}</pre>
       </div>
     </div>
   </div>
@@ -116,61 +148,162 @@ const copyGeneratedContent = async () => {
 .write-container {
   padding: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 30px;
+  gap: 20px;
+  height: calc(100vh - 120px); // 减去顶部导航和padding的高度
 }
 
-.input-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.actions-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 15px;
-}
-
-.type-select {
-  width: 150px;
-}
-
-.generate-button {
-  width: 180px;
-}
-
+.input-section,
 .output-section {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 15px;
-  min-height: 200px;
-  background-color: #f9fafb;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 0; // 防止flex项目溢出
 }
 
-.output-header {
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e4e7ed;
 
   h3 {
     margin: 0;
     color: #303133;
     font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.generate-button {
+  min-width: 120px;
+}
+
+.output-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.input-textarea {
+  flex: 1;
+  
+  :deep(.el-textarea__inner) {
+    height: 100% !important;
+    resize: none;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
   }
 }
 
 .output-content {
-  pre {
+  flex: 1;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  background-color: #fafafa;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &.loading {
+    border-color: #409eff;
+    background-color: #f0f9ff;
+  }
+
+  .loading-placeholder,
+  .empty-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #909399;
+    
+    .loading-icon {
+      font-size: 24px;
+      margin-bottom: 10px;
+      animation: rotate 2s linear infinite;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .empty-placeholder {
+    background-color: #f9f9f9;
+    
+    p {
+      color: #c0c4cc;
+    }
+  }
+
+  .content-text {
+    flex: 1;
+    padding: 15px;
+    margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
-    margin: 0;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 14px;
     line-height: 1.6;
-    color: #606266;
+    color: #303133;
+    background-color: #ffffff;
+    overflow-y: auto;
+    border: none;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 响应式设计
+@media (max-width: 1200px) {
+  .write-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .input-section,
+  .output-section {
+    flex: none;
+  }
+  
+  .input-textarea :deep(.el-textarea__inner) {
+    height: 300px !important;
+  }
+  
+  .output-content {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .write-container {
+    padding: 10px;
+    gap: 15px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    
+    .output-actions {
+      justify-content: center;
+    }
+  }
+  
+  .generate-button {
+    width: 100%;
   }
 }
 </style>

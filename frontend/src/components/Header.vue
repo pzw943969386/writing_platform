@@ -22,6 +22,10 @@ const goGetContent = () => {
 const goWrite = () => {
   router.push('/write')
 }
+
+const goThink = () => {
+  router.push('/think')
+}
 </script>
 
 <template>
@@ -30,8 +34,9 @@ const goWrite = () => {
       <div @click="goHome">首页</div>
       <div @click="goArticle">文章列表</div>
       <div @click="goSplite">断句</div>
-      <div @click="goGetContent">获取内容</div>
+      <!-- <div @click="goGetContent">获取内容</div> -->
       <div @click="goWrite">写作</div>
+      <div @click="goThink">思考</div>
     </div>
   </div>
 </template>

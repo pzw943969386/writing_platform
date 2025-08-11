@@ -2,7 +2,7 @@ import axios, { type AxiosRequestConfig } from 'axios'
 import type { ApiResponse } from '@/api/types'
 
 const request = axios.create({
-  baseURL: 'http://localhost:8888',
+  baseURL: 'http://localhost:8100',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

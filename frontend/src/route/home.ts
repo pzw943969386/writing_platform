@@ -14,14 +14,21 @@ const homeRoute = [{
     path: '/splite',
     name: 'splite',
     component: () => import('../views/article/Splite.vue'),
-}, {
-    path: '/get_content',
-    name: 'getContent',
-    component: () => import('../views/article/GetContent.vue'),
-}, {
+},
+// {
+//     path: '/get_content',
+//     name: 'getContent',
+//     component: () => import('../views/article/GetContent.vue'),
+// },
+{
     path: '/write',
     name: 'write',
     component: () => import('../views/article/Write.vue'),
+},
+{
+    path: '/think',
+    name: 'think',
+    component: () => import('../views/article/Thinking.vue'),
 }
 ]
 
